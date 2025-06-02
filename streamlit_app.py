@@ -1,34 +1,43 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[3]:
-
-
 import streamlit as st
-import google.generativeai as genai
 import os
 import PyPDF2 as pdf
 from dotenv import load_dotenv
 import json
 
-# Load environment variables
+# Try importing google.generativeai; if missing, show a friendly error
+try:
+    import google.generativeai as genai
+except ModuleNotFoundError:
+    st.error("Module 'google-generativeai' not found. Please install it with 'pip install google-generativeai'.")
+    st.stop()
+
+# Load environment variables from .env file
 load_dotenv()
 
+# Get API key from environment variable
+API_KEY = os.getenv("GOOGLE_API_KEY")
+
+if not API_KEY:
+    st.error("Google API key not found in environment variables. Please set 'GOOGLE_API_KEY' in your .env file.")
+    st.stop()
+
 # Configure the API key for the Generative AI model
-genai.configure(api_key=os.getenv("AIzaSyAA2xPFmN00UM3Sz4p8016ubXAqg3zLRz4"))  # Replace with your API key
+genai.configure(api_key=API_KEY)
 
 # Function to get AI response based on the resume and job description
-def get_gemini_response(input):
+def get_gemini_response(input_text):
     model = genai.GenerativeModel('gemini-pro')
-    response = model.generate_content(input)
+    response = model.generate_content(input_text)
     return response.text
 
 # Function to extract text from the uploaded PDF
 def input_pdf_text(uploaded_file):
     reader = pdf.PdfReader(uploaded_file)
     text = ""
-    for page in range(len(reader.pages)):
-        page = reader.pages[page]
+    for page in reader.pages:
         text += str(page.extract_text())
     return text
 
@@ -57,7 +66,6 @@ jd_input_option = st.radio("How would you like to provide job descriptions?", ("
 jds = []
 
 if jd_input_option == "Paste JDs":
-    # Multiple JD input text boxes
     jd_count = st.number_input("How many job descriptions?", min_value=1, step=1, value=1)
     for i in range(jd_count):
         jd_text = st.text_area(f"Paste Job Description {i + 1}")
@@ -121,6 +129,7 @@ if submit:
 
     else:
         st.error("Please upload both resumes and job descriptions to proceed.")
+
 
 
 
