@@ -4,9 +4,6 @@
 # In[3]:
 
 
-
-!pip install PyPDF2
-!pip install dotenv
 import streamlit as st
 import google.generativeai as genai
 import os
@@ -124,4 +121,6 @@ if submit:
 
     else:
         st.error("Please upload both resumes and job descriptions to proceed.")
-!streamlit run /usr/local/lib/python3.11/dist-packages/colab_kernel_launcher.py
+
+
+
